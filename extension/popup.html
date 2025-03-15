@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Leetracker Settings</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h2>Leetracker Settings</h2>
+
+    <!-- GitHub Login Button (Shown if NOT logged in) -->
+    <button id="github-login">Login with GitHub</button>
+
+    <!-- Repo Input & Logout (Hidden Initially) -->
+    <div id="repo-settings" style="display: none; margin-top: 10px;">
+        <label>Repository Name: <input id="repo" type="text"></label><br>
+        <button id="save-repo">Save Repository</button>
+        <p><strong>Saved Repo:</strong> <span id="saved-repo-name"></span></p>
+    </div>
+
+    <!-- Logout Button (Hidden Initially) -->
+    <button id="logout" style="display: none; margin-top: 10px; background-color: red; color: white;">
+        Logout
+    </button>
+
+    <script src="popup.js"></script>
+</body>
+</html>
