@@ -1,4 +1,4 @@
-const languageExtensions = {
+    const languageExtensions = {
     "C++": "cpp", "Java": "java", "Python": "py", "Python3": "py",
     "C": "c", "C#": "cs", "JavaScript": "js", "TypeScript": "ts",
     "PHP": "php", "Swift": "swift", "Kotlin": "kt", "Dart": "dart",
@@ -11,12 +11,12 @@ function capitalizeWords(str) {
 }
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    console.log("📥 Received message in background.js:", request);
+    console.log("Received message in background.js:", request);
 
     if (request.action === "uploadToGitHub") {
         (async () => {
             try {
-                console.log("📤 Processing GitHub Upload Request...");
+                console.log("Processing GitHub Upload Request...");
 
                 let { code, problemTitle, language } = request;
                 
@@ -26,14 +26,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 const folderName = capitalizeWords(problemTitle);
                 let filename = `${folderName}.${extension}`;
 
-                console.log(`📂 Detected Language: ${language}, Mapped Extension: ${extension}`);
+                console.log(`Detected Language: ${language}, Mapped Extension: ${extension}`);
 
                 let data = await new Promise((resolve) => {
                     chrome.storage.sync.get(["token", "repo"], resolve);
                 });
 
                 if (!data.token || !data.repo) {
-                    console.error("❌ GitHub token or repo missing.");
+                    console.error("GitHub token or repo missing.");
                     sendResponse({ success: false, error: "Missing GitHub token or repository." });
                     return;
                 }
@@ -43,8 +43,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 const filePath = `${folderName}/${filename}`;
                 const githubApiUrl = `https://api.github.com/repos/${repo}/contents/${filePath}`;
 
-                console.log(`📁 Preparing to upload: ${filePath}`);
-                console.log("🔗 GitHub Repository:", repo);
+                console.log(`Preparing to upload: ${filePath}`);
+                console.log("GitHub Repository:", repo);
 
                 // Check if file exists
                 let fileResponse = await fetch(githubApiUrl, {
@@ -58,7 +58,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 }
 
                 // Upload or update file in GitHub
-                console.log("🚀 Uploading to GitHub...");
+                console.log("Uploading to GitHub...");
                 let response = await fetch(githubApiUrl, {
                     method: "PUT",
                     headers: {
@@ -73,10 +73,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 });
 
                 let responseData = await response.json();
-                console.log("🔄 GitHub Response:", responseData);
+                console.log("GitHub Response:", responseData);
 
                 if (response.ok) {
-                    console.log("✅ Successfully uploaded to GitHub!");
+                    console.log("Successfully uploaded to GitHub!");
                     if (chrome.notifications && chrome.notifications.create) {
                         chrome.notifications.create({
                             type: "basic",
@@ -85,58 +85,58 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                             message: `${folderName} has been pushed to GitHub!`
                         });
                     } else {
-                        console.warn("⚠️ Notifications API is unavailable in this context.");
+                        console.warn("Notifications API is unavailable in this context.");
                     }
                     sendResponse({ success: true, data: responseData });
                 } else {
-                    console.error("❌ GitHub Upload Failed:", responseData);
+                    console.error("GitHub Upload Failed:", responseData);
                     sendResponse({ success: false, error: responseData.message });
                 }
             } catch (error) {
-                console.error("⚠️ GitHub Upload Error:", error);
+                console.error("GitHub Upload Error:", error);
                 sendResponse({ success: false, error: error.message });
             }
         })();
 
-        return true; // ✅ Ensures the response will be sent asynchronously
+        return true; //Ensures the response will be sent asynchronously
     }
 
     if (request.action === "githubAuth") {
         const redirectUri = chrome.identity.getRedirectURL();
         const authUrl = `https://github.com/login/oauth/authorize?client_id=Ov23liXayv8qezM2t2z0&redirect_uri=${encodeURIComponent(redirectUri)}&scope=repo,user`;
 
-        console.log("🔄 Starting GitHub OAuth Flow...");
-        console.log("🔗 OAuth URL:", authUrl);
+        console.log("Starting GitHub OAuth Flow...");
+        console.log("OAuth URL:", authUrl);
 
         chrome.identity.launchWebAuthFlow(
             { url: authUrl, interactive: true },
             async function (redirectedTo) {
                 if (chrome.runtime.lastError) {
-                    console.error("❌ Authentication Error:", chrome.runtime.lastError.message);
+                    console.error("Authentication Error:", chrome.runtime.lastError.message);
                     sendResponse({ success: false, error: chrome.runtime.lastError.message });
                     return;
                 }
 
                 if (!redirectedTo) {
-                    console.error("❌ No redirect URL received.");
+                    console.error("No redirect URL received.");
                     sendResponse({ success: false, error: "No redirect URL received" });
                     return;
                 }
 
-                console.log("🔄 Redirect URL:", redirectedTo);
+                console.log("Redirect URL:", redirectedTo);
                 const url = new URL(redirectedTo);
                 const code = url.searchParams.get("code");
 
                 if (!code) {
-                    console.error("❌ No GitHub auth code received.");
+                    console.error("No GitHub auth code received.");
                     sendResponse({ success: false, error: "No authorization code received" });
                     return;
                 }
 
-                console.log("🔑 GitHub Auth Code:", code);
+                console.log("GitHub Auth Code:", code);
 
                 try {
-                    console.log("📡 Sending code to backend for token exchange...");
+                    console.log("Sending code to backend for token exchange...");
                     let response = await fetch("https://65f2-2603-8000-ba00-2399-c553-9d1-26d4-5b61.ngrok-free.app/github/oauth", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
@@ -144,19 +144,19 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                     });
 
                     let data = await response.json();
-                    console.log("🔄 GitHub Token Exchange Response:", data);
+                    console.log("GitHub Token Exchange Response:", data);
 
                     if (data.access_token) {
                         chrome.storage.sync.set({ token: data.access_token }, () => {
-                            console.log("✅ GitHub token saved successfully!");
+                            console.log("GitHub token saved successfully!");
                             sendResponse({ success: true });
                         });
                     } else {
-                        console.error("❌ Failed to get GitHub token:", data);
+                        console.error("Failed to get GitHub token:", data);
                         sendResponse({ success: false, error: "Token exchange failed" });
                     }
                 } catch (error) {
-                    console.error("⚠️ Error in token exchange:", error);
+                    console.error("Error in token exchange:", error);
                     sendResponse({ success: false, error: error.message });
                 }
             }
