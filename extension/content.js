@@ -8,20 +8,20 @@ const languageExtensions = {
 
 // Prevent multiple executions
 if (window.hasRunLeetracker) {
-    console.warn("⚠️ Leetracker content script is already running.");
+    console.warn("Leetracker content script is already running.");
 } else {
     window.hasRunLeetracker = true;
-    console.log("✅ Leetracker content script loaded successfully!");
+    console.log("Leetracker content script loaded successfully!");
 
     // Function to observe submission results after clicking the Submit button
     function observeSubmissionResult() {
-        console.log("🔄 Waiting for submission result...");
+        console.log("Waiting for submission result...");
 
         let checkInterval = setInterval(() => {
             let submissionStatus = document.querySelector("[data-test-submission-result], div.text-green-s, span.text-success");
 
             if (submissionStatus && submissionStatus.innerText.includes("Accepted")) {
-                console.log("✅ Submission Accepted! Extracting details...");
+                console.log("Submission Accepted! Extracting details...");
                 clearInterval(checkInterval);
 
                 let problemTitleMatch = window.location.href.match(/\/problems\/([^\/]+)\//);
@@ -36,15 +36,15 @@ if (window.hasRunLeetracker) {
                     if (languageElement) {
                         let detectedLanguage = languageElement.textContent.trim();
                         detectedLanguage = detectedLanguage.replace(/^Code/, '').trim();
-                        console.log(`🌍 Detected programming language: ${detectedLanguage}`);
+                        console.log(`Detected programming language: ${detectedLanguage}`);
                         return detectedLanguage;
                     }
-                    console.warn("⚠️ Could not detect programming language.");
+                    console.warn("Could not detect programming language.");
                     return "unknown";
                 }
 
                 async function fetchSubmittedCode(problemTitle) {
-                    console.log(`📡 Fetching latest accepted submission for: ${problemTitle}`);
+                    console.log(`Fetching latest accepted submission for: ${problemTitle}`);
 
                     try {
                         let response = await fetch("https://leetcode.com/api/submissions/", {
@@ -55,7 +55,7 @@ if (window.hasRunLeetracker) {
 
                         let data = await response.json();
                         if (!data.submissions_dump || data.submissions_dump.length === 0) {
-                            console.error("❌ No submissions found.");
+                            console.error("No submissions found.");
                             return;
                         }
 
@@ -67,11 +67,11 @@ if (window.hasRunLeetracker) {
                         let language = languageKey || "unknown";
                         let filename = `${problemTitle}.${extension}`;
 
-                        console.log(`📁 Saving file: ${filename} (Language: ${language})`);
-                        console.log("📜 Extracted Code:");
+                        console.log(`Saving file: ${filename} (Language: ${language})`);
+                        console.log("Extracted Code:");
                         console.log(latestSubmission.code);
 
-                        console.log("📤 Sending data to background.js for GitHub upload:", {
+                        console.log("Sending data to background.js for GitHub upload:", {
                             action: "uploadToGitHub",
                             problemTitle,
                             language,
@@ -87,14 +87,14 @@ if (window.hasRunLeetracker) {
                             code: latestSubmission.code
                         }, (response) => {
                             if (chrome.runtime.lastError) {
-                                console.error("❌ Error sending message to background.js:", chrome.runtime.lastError);
+                                console.error("Error sending message to background.js:", chrome.runtime.lastError);
                             } else {
-                                console.log("✅ Message sent successfully to background.js! Response:", response);
+                                console.log("Message sent successfully to background.js! Response:", response);
                             }
                         });
 
                     } catch (error) {
-                        console.error("⚠️ Error fetching submitted code:", error);
+                        console.error("Error fetching submitted code:", error);
                     }
                 }
 
@@ -108,10 +108,10 @@ if (window.hasRunLeetracker) {
         const submitButton = document.querySelector('button[data-e2e-locator="console-submit-button"]');
 
         if (submitButton) {
-            console.log("✅ Submit button found! Attaching event listener...");
+            console.log("Submit button found! Attaching event listener...");
             submitButton.addEventListener("click", observeSubmissionResult);
         } else {
-            console.warn("⚠️ Submit button not found, retrying...");
+            console.warn("Submit button not found, retrying...");
             setTimeout(attachSubmitListener, 2000);
         }
     }
