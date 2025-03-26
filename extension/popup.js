@@ -25,14 +25,14 @@ document.addEventListener("DOMContentLoaded", function() {
 document.getElementById("github-login").addEventListener("click", function() {
     chrome.runtime.sendMessage({ action: "githubAuth" }, function(response) {
         if (!response) {
-            alert("❌ No response received from background script.");
+            alert("No response received from background script.");
             return;
         }
         if (response.success) {
-            alert("✅ GitHub authentication successful!");
+            alert("GitHub authentication successful!");
             location.reload(); // Reload UI to reflect login state
         } else {
-            alert("❌ Authentication failed: " + response.error);
+            alert("Authentication failed: " + response.error);
         }
     });
 });
